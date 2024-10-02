@@ -1,0 +1,49 @@
+﻿@page "/"
+@inject HttpClient Http
+
+@code {
+    private string api2Response;
+    private string api3Response;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    private async void GetRequest()
+    {
+        api2Response = api3Response = string.Empty;
+        var response = await Http.GetFromJsonAsync<ResponseData>("https://localhost:7166/api/One/get-async");
+        api2Response = response.APITwoResponse;
+        api3Response = response.APIThreeResponse;
+        StateHasChanged();
+    }
+
+    private async void PostRequest()
+    {
+        api2Response = api3Response = string.Empty;
+        var apiResponse = await Http.PostAsync("https://localhost:7166/api/One/post-async", null);
+        if (apiResponse.IsSuccessStatusCode)
+        {
+            var response = await apiResponse.Content.ReadFromJsonAsync<ResponseData>();
+            api2Response = response.APITwoResponse;
+            api3Response = response.APIThreeResponse;
+        }
+        StateHasChanged();
+    }
+
+    public class ResponseData
+    {
+        public string APITwoResponse { get; set; }
+        public string APIThreeResponse { get; set; }
+    }
+}
+
+<button class="btn btn-primary" @onclick="GetRequest">Get Call</button>
+<br /><br />
+<button class="btn btn-primary" @onclick="PostRequest">Post Call</button>
+<br />
+<br />
+<h3>API Responses</h3>
+<p>API2 Response: @api2Response</p>
+<p>API3 Response: @api3Response</p>
